@@ -31,6 +31,8 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/products/**",
+                                "/categories/**",
                                 "/auth/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
