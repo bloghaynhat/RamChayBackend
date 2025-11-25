@@ -41,6 +41,7 @@ public class AuthServiceImpl implements AuthService {
     private final CustomerMapper customerMapper;
     private final RoleService roleService;
     private final String SECRET_KEY;
+    private String accessToken;
 
     public AuthServiceImpl(JwtSecretReader reader,
                            CustomerRepository customerRepository,
@@ -84,15 +85,46 @@ public class AuthServiceImpl implements AuthService {
             throw new AppException(ErrorCode.PASSWORD_INVALID);
         }
 
-        String token = generateToken(user);
+        String refreshToken = generateRefreshToken(user);
+        String accessToken = generateAccessToken(user);
 
         return LoginResponse.builder()
-                .token(token)
+                .refreshToken(refreshToken)
+                .accessToken(accessToken)
                 .message("Đăng nhập thành công")
                 .build();
     }
 
-    public String generateToken(User user) throws JOSEException {
+    public String generateRefreshToken(User user) throws JOSEException {
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
+        Set<String> permissions = new HashSet<>();
+
+        for (Role role : user.getRoles()) {
+            role.getPermissions().forEach(p -> permissions.add(p.getName()));
+        }
+
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                .subject(user.getId().toString())
+                .issuer("RamChay")
+                .issueTime(new Date())
+                .claim("permissions", permissions)
+                .claim("roles", user.getRoles()
+                        .stream()
+                        .map(Role::getName)
+                        .toList())
+                .jwtID(UUID.randomUUID().toString())
+                .expirationTime(new Date(
+                        Instant.now().plus(7, ChronoUnit.DAYS).toEpochMilli()
+                ))
+                .build();
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+        JWSObject jwsObject = new JWSObject(header, payload);
+        jwsObject.sign(new MACSigner(SECRET_KEY.getBytes(StandardCharsets.UTF_8)));
+
+        return jwsObject.serialize();
+    }
+
+    public String generateAccessToken(User user) throws JOSEException {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
         Set<String> permissions = new HashSet<>();
 
