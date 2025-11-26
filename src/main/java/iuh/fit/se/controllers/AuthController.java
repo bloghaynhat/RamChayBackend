@@ -6,11 +6,15 @@ import iuh.fit.se.dtos.request.LoginRequest;
 import iuh.fit.se.dtos.response.ApiResponse;
 import iuh.fit.se.dtos.response.CustomerRegistrationResponse;
 import iuh.fit.se.dtos.response.LoginResponse;
+import iuh.fit.se.dtos.response.MyProfileResponse;
+import iuh.fit.se.entities.Customer;
 import iuh.fit.se.services.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -55,5 +59,37 @@ public class AuthController {
                 .body(ApiResponse.<LoginResponse>builder()
                         .result(loginResponse)
                         .build());
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        // Tạo cookie rỗng với thời gian sống = 0 để xóa
+        ResponseCookie deleteAccess = ResponseCookie.from("accessToken", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0) // Quan trọng: 0 nghĩa là xóa ngay lập tức
+                .build();
+
+        ResponseCookie deleteRefresh = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, deleteAccess.toString())
+                .header(HttpHeaders.SET_COOKIE, deleteRefresh.toString())
+                .body(new ApiResponse(1000, "Đăng xuất thành công", null));
+    }
+
+    @GetMapping("/me")
+    public ApiResponse<MyProfileResponse> getMyProfile(@AuthenticationPrincipal Jwt jwt) {
+        Long id = Long.valueOf(jwt.getSubject());
+
+        return ApiResponse.<MyProfileResponse>builder()
+                .result(authService.getMyProfile(id))
+                .build();
     }
 }
