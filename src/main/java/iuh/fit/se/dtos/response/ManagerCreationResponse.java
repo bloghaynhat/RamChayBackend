@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ManagerCreationResponse {
     Long id;
-    String userName;
+    String username;
     String password;
     String fullName;
 }

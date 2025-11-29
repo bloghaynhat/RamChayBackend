@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('ADD_PRODUCT')")
+    @PreAuthorize("hasAuthority('ADD_MANAGER')")
     @Transactional
     public ManagerCreationResponse createManager(ManagerCreationRequest managerCreationRequest) {
 
