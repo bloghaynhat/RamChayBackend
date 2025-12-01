@@ -19,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class CartItemServiceImpl implements CartItemService {
@@ -80,5 +82,27 @@ public class CartItemServiceImpl implements CartItemService {
         return CartItemDeletionResponse.builder()
                 .id(cartItem.getId())
                 .build();
+    }
+
+    @Override
+    public CartItem persistCartItem(CartItem cartItem) {
+        // Kiểm tra giỏ hàng đã có sản phẩm hay chưa
+        // Nếu có thì chỉ cập nhật số lượng
+        // Nếu chưa thì tạo mới
+
+        Optional<CartItem> existingItem = cartItemRepository
+                .findCartItemByProductIdAndCartId(
+                        cartItem.getProduct().getId(),
+                        cartItem.getCart().getId());
+
+        if (existingItem.isPresent()) { // Cập nhật lại số lượng
+            existingItem.get().setQuantity(
+                    existingItem.get().getQuantity() + cartItem.getQuantity()
+            );
+            return cartItemRepository.save(existingItem.get());
+        }
+
+        // Tạo mới nếu chưa có
+        return cartItemRepository.save(cartItem);
     }
 }
