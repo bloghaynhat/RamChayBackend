@@ -10,7 +10,9 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderCreationRequest {
+    Long customerId; // Có thể null cho khách vãng lai
+    String receiverName;
     String shippingAddress;
-    String customerPhone;
+    String receiverPhone; // đổi từ customerPhone thành receiverPhone
     PaymentMethod paymentMethod;
 }
