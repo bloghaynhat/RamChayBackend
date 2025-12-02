@@ -11,5 +11,6 @@ import lombok.experimental.FieldDefaults;
 public class ManagerUpdateRequest {
     String username;
     String fullName;
-    boolean isActive;
+    boolean active;
+    String password;
 }

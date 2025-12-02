@@ -30,7 +30,7 @@ public class User { // Super class: lớp cha
     String password;
 
     @Column(name = "is_active", nullable = false)
-    private boolean isActive = true;   // default true
+    private boolean active = true;   // default true
 
     @Column(name = "full_name")
     String fullName;

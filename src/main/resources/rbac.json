@@ -9,7 +9,10 @@
     "CREATE_ORDER",
     "ADD_MANAGER",
     "DELETE_MANAGER",
-    "UPDATE_MANAGER"
+    "UPDATE_MANAGER",
+    "SEARCH_MANAGER",
+    "FIND_MANAGER",
+    "PAGE_MANAGER"
   ],
   "roles": {
     "ROLE_MANAGER": [
@@ -33,7 +36,10 @@
       "MANAGE_CUSTOMER",
       "ADD_MANAGER",
       "DELETE_MANAGER",
-      "UPDATE_MANAGER"
+      "UPDATE_MANAGER",
+      "SEARCH_MANAGER",
+      "FIND_MANAGER",
+      "PAGE_MANAGER"
     ]
   }
 }

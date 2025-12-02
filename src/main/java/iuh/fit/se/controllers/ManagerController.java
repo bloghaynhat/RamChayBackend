@@ -3,13 +3,13 @@ package iuh.fit.se.controllers;
 
 import iuh.fit.se.dtos.request.ManagerCreationRequest;
 import iuh.fit.se.dtos.request.ManagerDeleteRequest;
+import iuh.fit.se.dtos.request.ManagerFindRequest;
 import iuh.fit.se.dtos.request.ManagerUpdateRequest;
-import iuh.fit.se.dtos.response.ApiResponse;
-import iuh.fit.se.dtos.response.ManagerCreationResponse;
-import iuh.fit.se.dtos.response.ManagerDeleteResponse;
-import iuh.fit.se.dtos.response.ManagerUpdateResponse;
+import iuh.fit.se.dtos.response.*;
+import iuh.fit.se.entities.User;
 import iuh.fit.se.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,9 +27,12 @@ public class ManagerController {
                 .build();
     }
 
-    @PostMapping("/delete")
+    @PostMapping("/delete/{id}")
     public ApiResponse<ManagerDeleteResponse> deleteManager(
-            @RequestBody ManagerDeleteRequest request) {
+            @PathVariable Long id) {
+
+        ManagerDeleteRequest request = new ManagerDeleteRequest();
+        request.setId(id);
 
         return ApiResponse.<ManagerDeleteResponse>builder()
                 .result(userService.deleteManager(request))
@@ -43,6 +46,41 @@ public class ManagerController {
 
         return ApiResponse.<ManagerUpdateResponse>builder()
                 .result(userService.updateManager(id, request))
+                .build();
+    }
+
+
+    @GetMapping("/search")
+    public ApiResponse<Page<User>> searchUsers(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0") int page
+    ) {
+        return ApiResponse.<Page<User>>builder()
+                .result(userService.searchUsers(keyword, page))
+                .build();
+    }
+
+    @GetMapping("/find/{id}")
+    public ApiResponse<ManagerFindResponse> findManager(@PathVariable Long id) {
+
+        ManagerFindRequest request = new ManagerFindRequest();
+        request.setId(id);
+
+        return ApiResponse.<ManagerFindResponse>builder()
+                .result(userService.findManager(request))
+                .build();
+    }
+
+
+    @GetMapping("/page")
+    public ApiResponse<ManagerPaginationResponse> getManagers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int pageSize,
+            @RequestParam(defaultValue = "") String keyWord // <== Thêm tham số keyword
+    ) {
+        // Gọi Service với tham số keyword mới
+        return ApiResponse.<ManagerPaginationResponse>builder()
+                .result(userService.getManagers(page, pageSize, keyWord))
                 .build();
     }
 

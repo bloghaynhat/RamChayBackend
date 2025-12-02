@@ -2,6 +2,7 @@ package iuh.fit.se.mappers;
 
 import iuh.fit.se.dtos.response.ManagerCreationResponse;
 import iuh.fit.se.dtos.response.ManagerDeleteResponse;
+import iuh.fit.se.dtos.response.ManagerFindResponse;
 import iuh.fit.se.dtos.response.ManagerUpdateResponse;
 import iuh.fit.se.entities.User;
 import org.mapstruct.Builder;
@@ -14,4 +15,5 @@ public interface ManagerMapper {
     ManagerDeleteResponse toManagerDeleteResponse(User user);
 
     ManagerUpdateResponse toManagerUpdateResponse(User user);
+    ManagerFindResponse toManagerFindResponse(User user);
 }

@@ -12,6 +12,7 @@ import lombok.experimental.FieldDefaults;
 public class ManagerUpdateResponse {
     Long id;
     String fullName;
-    boolean isActive;
+    boolean active;
     String username;
+
 }
