@@ -12,7 +12,8 @@
     "UPDATE_MANAGER",
     "SEARCH_MANAGER",
     "FIND_MANAGER",
-    "PAGE_MANAGER"
+    "PAGE_MANAGER",
+    "GET_ROLE"
   ],
   "roles": {
     "ROLE_MANAGER": [
@@ -39,7 +40,8 @@
       "UPDATE_MANAGER",
       "SEARCH_MANAGER",
       "FIND_MANAGER",
-      "PAGE_MANAGER"
+      "PAGE_MANAGER",
+      "GET_ROLE"
     ]
   }
 }
