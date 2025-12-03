@@ -41,10 +41,10 @@ public class CartServiceImpl implements CartService {
 
                 CartItem item = CartItem.builder()
                         .cart(newCart)
-                        .unitPrice(request.getUnitPrice())
+//                        .unitPrice(request.getUnitPrice())
                         .product(Product.builder().id(request.getProductId()).build())
                         .quantity(request.getQuantity())
-                        .subtotal(request.getSubtotal())
+//                        .subtotal(request.getSubtotal())
                         .build();
 
                 newCart.setCartItems(List.of(item));
@@ -58,10 +58,10 @@ public class CartServiceImpl implements CartService {
             // Chưa đăng nhập nhưng còn GIỮ cookies giỏ hàng
             CartItem item = CartItem.builder()
                     .cart(existingAnonymousCart.get())
-                    .unitPrice(request.getUnitPrice())
+//                    .unitPrice(request.getUnitPrice())
                     .product(Product.builder().id(request.getProductId()).build())
                     .quantity(request.getQuantity())
-                    .subtotal(request.getSubtotal())
+//                    .subtotal(request.getSubtotal())
                     .build();
 
             cartItemService.persistCartItem(item); // sửa hoặc tạo nếu chưa có
@@ -79,10 +79,10 @@ public class CartServiceImpl implements CartService {
 
             CartItem newItem = CartItem.builder()
                     .cart(newCart)
-                    .unitPrice(request.getUnitPrice())
+//                    .unitPrice(request.getUnitPrice())
                     .product(Product.builder().id(request.getProductId()).build())
                     .quantity(request.getQuantity())
-                    .subtotal(request.getSubtotal())
+//                    .subtotal(request.getSubtotal())
                     .build();
 
             newCart.setCartItems(List.of(newItem));
@@ -97,10 +97,10 @@ public class CartServiceImpl implements CartService {
         // Đã đăng nhập và đã có cart
         CartItem newItem = CartItem.builder()
                 .cart(existingCustomerCart.get())
-                .unitPrice(request.getUnitPrice())
+//                .unitPrice(request.getUnitPrice())
                 .product(Product.builder().id(request.getProductId()).build())
                 .quantity(request.getQuantity())
-                .subtotal(request.getSubtotal())
+//                .subtotal(request.getSubtotal())
                 .build();
 
         cartItemService.persistCartItem(newItem); // sửa hoặc tạo nếu chưa có
