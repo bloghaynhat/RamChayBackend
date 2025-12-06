@@ -1,6 +1,7 @@
 package iuh.fit.se.services.impl;
 
 import iuh.fit.se.dtos.request.CartItemCreationRequest;
+import iuh.fit.se.dtos.request.CartItemUpdateRequest;
 import iuh.fit.se.dtos.response.CartItemCreationResponse;
 import iuh.fit.se.dtos.response.CartItemDeletionResponse;
 import iuh.fit.se.dtos.response.GetItemsResponse;
@@ -109,6 +110,27 @@ public class CartItemServiceImpl implements CartItemService {
 
         // Tạo mới nếu chưa có
         return cartItemRepository.save(cartItem);
+    }
+
+    @Override
+    public GetItemsResponse updateCartItem(Long itemId, Long customerId, CartItemUpdateRequest request) {
+        CartItem item = cartItemRepository.findById(itemId)
+                .orElseThrow(() -> new AppException(ErrorCode.CART_ITEM_INVALID));
+
+        Long ownerId = item.getCart().getCustomer().getId();
+
+        if(ownerId != null && !ownerId.equals(customerId))
+            throw new AppException(ErrorCode.OWNERSHIP_INVALID);
+
+        item.setQuantity(request.getQuantity());
+        item = cartItemRepository.save(item);
+        return GetItemsResponse.builder()
+                .id(item.getId())
+                .productId(item.getProduct().getId())
+                .quantity(item.getQuantity())
+                .unitPrice(item.getProduct().getPrice())
+                .productName(item.getProduct().getName())
+                .build();
     }
 
     @Override

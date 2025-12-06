@@ -2,6 +2,7 @@ package iuh.fit.se.controllers;
 
 
 import iuh.fit.se.dtos.request.CartItemCreationRequest;
+import iuh.fit.se.dtos.request.CartItemUpdateRequest;
 import iuh.fit.se.dtos.response.ApiResponse;
 import iuh.fit.se.dtos.response.CartItemCreationResponse;
 import iuh.fit.se.dtos.response.CartItemDeletionResponse;
@@ -37,7 +38,6 @@ public class CartItemController {
             @PathVariable("id") Long cartItemId,
             @AuthenticationPrincipal Jwt jwt) {
         Long customerId = Long.valueOf(jwt.getSubject());
-        System.out.println(cartItemId);
         return ApiResponse.<CartItemDeletionResponse>builder()
                 .result(cartItemService.deleteCartItem(cartItemId, customerId))
                 .build();
@@ -60,6 +60,21 @@ public class CartItemController {
                         userId,
                         page,
                         size))
+                .build();
+    }
+
+    @PutMapping("/{id}")
+    public ApiResponse<GetItemsResponse> updateCartItem(
+            @PathVariable("id") Long cartItemId,
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestBody CartItemUpdateRequest request) {
+        Long userId = null;
+
+        if (jwt != null)
+            userId = Long.valueOf(jwt.getSubject());
+
+        return ApiResponse.<GetItemsResponse>builder()
+                .result(cartItemService.updateCartItem(cartItemId, userId, request))
                 .build();
     }
 }
