@@ -1,16 +1,24 @@
 {
   "permissions": [
     "ADD_CATEGORY",
+    "DELETE_CATEGORY",
     "ADD_PRODUCT",
     "EDIT_PRODUCT",
     "DELETE_PRODUCT",
     "VIEW_ORDER",
     "MANAGE_CUSTOMER",
-    "CREATE_ORDER"
+    "CREATE_ORDER",
+    "ADD_MANAGER",
+    "DELETE_MANAGER",
+    "UPDATE_MANAGER",
+    "SEARCH_MANAGER",
+    "FIND_MANAGER",
+    "PAGE_MANAGER"
   ],
   "roles": {
     "ROLE_MANAGER": [
       "ADD_CATEGORY",
+      "DELETE_CATEGORY",
       "ADD_PRODUCT",
       "EDIT_PRODUCT",
       "DELETE_PRODUCT",
@@ -23,11 +31,18 @@
     ],
     "ROLE_ADMIN": [
       "ADD_CATEGORY",
+      "DELETE_CATEGORY",
       "ADD_PRODUCT",
       "EDIT_PRODUCT",
       "DELETE_PRODUCT",
       "VIEW_ORDER",
-      "MANAGE_CUSTOMER"
+      "MANAGE_CUSTOMER",
+      "ADD_MANAGER",
+      "DELETE_MANAGER",
+      "UPDATE_MANAGER",
+      "SEARCH_MANAGER",
+      "FIND_MANAGER",
+      "PAGE_MANAGER"
     ]
   }
 }

@@ -1,4 +1,4 @@
-package iuh.fit.se.dtos.response;
+package iuh.fit.se.dtos.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,8 +8,6 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class MediaUploadResponse {
+public class ManagerFindRequest {
     Long id;
-    String publicId;
-    String secureUrl;
 }

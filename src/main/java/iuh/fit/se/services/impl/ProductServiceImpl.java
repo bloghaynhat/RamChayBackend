@@ -19,9 +19,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,20 +38,18 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     @PreAuthorize("hasAuthority('ADD_PRODUCT')")
     public ProductCreationResponse createProduct(ProductCreationRequest productCreationRequest, List<MultipartFile> images) throws IOException {
+        String categoryName = productCreationRequest.getCategory().getCategoryName();
 
-        Category category = Category.builder()
-                .categoryName(productCreationRequest.getCategory().getCategoryName())
-                .description(productCreationRequest.getCategory().getDescription())
-                .build();
-
-        Category savedCategory = categoryRepository.save(category);
+        Category existingCategory = categoryRepository.findByCategoryName(categoryName)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
 
         Product product = Product.builder()
                 .name(productCreationRequest.getName())
                 .description(productCreationRequest.getDescription())
-                .category(savedCategory)
+                .category(existingCategory)
                 .price(productCreationRequest.getPrice())
                 .stock(productCreationRequest.getStock())
+                .unit(productCreationRequest.getUnit())
                 .build();
 
         Product savedProduct = productRepository.save(product);
@@ -74,4 +74,98 @@ public class ProductServiceImpl implements ProductService {
 
         return productMapper.toProductCreationResponse(savedProduct);
     }
+
+    @Override
+    public List<ProductCreationResponse> getAllProducts() {
+        List<Product> products = productRepository.findAll();
+
+        return products.stream()
+                .map(productMapper::toProductCreationResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ProductCreationResponse getProductById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với ID: " + id));
+
+        return productMapper.toProductCreationResponse(product);
+    }
+
+    @Override
+    @Transactional
+    @PreAuthorize("hasAuthority('DELETE_PRODUCT')")
+    public void deleteProduct(Long productId) throws IOException {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+
+// Xóa ảnh trên Cloudinary (Dọn dẹp)
+        Set<Media> mediaFiles = product.getMediaFiles();
+
+        if (!mediaFiles.isEmpty()) {
+            Set<Media> mediaFilesCopy = new HashSet<>(mediaFiles);
+            for (Media media : mediaFilesCopy) {
+                if (media.getPublicId() != null) {
+                    cloudinaryService.deleteImage(media.getPublicId());
+                }
+            }
+        }
+
+        productRepository.delete(product);
+    }
+
+    @Override
+    @Transactional
+    @PreAuthorize("hasAuthority('EDIT_PRODUCT')")
+    public ProductCreationResponse updateProduct(Long productId, ProductCreationRequest productCreationRequest, List<MultipartFile> images) throws IOException {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+
+        product.setName(productCreationRequest.getName());
+        product.setDescription(productCreationRequest.getDescription());
+        product.setPrice(productCreationRequest.getPrice());
+        product.setStock(productCreationRequest.getStock());
+        product.setUnit(productCreationRequest.getUnit());
+
+        Category currentCategory = product.getCategory();
+        if (currentCategory != null) {
+            currentCategory.setCategoryName(productCreationRequest.getCategory().getCategoryName());
+            currentCategory.setDescription(productCreationRequest.getCategory().getDescription());
+            categoryRepository.save(currentCategory);
+        }
+
+        List<Long> idsToDelete = productCreationRequest.getImageIdsToDelete();
+        if (idsToDelete != null && !idsToDelete.isEmpty()) {
+            List<Media> mediasToDelete = mediaRepository.findAllById(idsToDelete);
+            for (Media media : mediasToDelete) {
+                if (media.getPublicId() != null) {
+                    cloudinaryService.deleteImage(media.getPublicId());
+                }
+                product.getMediaFiles().remove(media);
+                mediaRepository.delete(media);
+            }
+        }
+
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile image : images) {
+                if (!image.isEmpty()) {
+                    MediaUploadResponse res = cloudinaryService.upload(image);
+                    Media newMedia = Media.builder()
+                            .product(product)
+                            .publicId(res.getPublicId())
+                            .secureUrl(res.getSecureUrl())
+                            .build();
+
+                    product.getMediaFiles().add(newMedia);
+                }
+            }
+            // Lưu ý: Vì CascadeType.ALL, chỉ cần save Product là Media tự lưu
+            // Nhưng nếu muốn chắc ăn, có thể save mediaRepository.saveAll(...)
+        }
+
+        Product savedProduct = productRepository.save(product);
+        return productMapper.toProductCreationResponse(savedProduct);
+    }
+
+
 }

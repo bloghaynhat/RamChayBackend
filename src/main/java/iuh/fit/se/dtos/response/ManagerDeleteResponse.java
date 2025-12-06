@@ -8,8 +8,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class MediaUploadResponse {
+public class ManagerDeleteResponse {
     Long id;
-    String publicId;
-    String secureUrl;
+    String username;
 }
