@@ -36,8 +36,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) throws JOSEException {
-        LoginResponse loginResponse = authService.login(request);
+    public ResponseEntity<?> login(
+            @RequestBody LoginRequest request,
+            @CookieValue(name = "cart", required = false) String cartId) throws JOSEException {
+        LoginResponse loginResponse = authService.login(request,
+                cartId == null ? null : Long.valueOf(cartId));
+
         String refreshToken = loginResponse.getRefreshToken();
         String accessToken = loginResponse.getAccessToken();
 
@@ -57,7 +61,16 @@ public class AuthController {
                 .sameSite("Lax")
                 .build();
 
+        // Xoá cart cookie nếu có
+        ResponseCookie deleteCart = ResponseCookie.from("cart", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0)
+                .build();
+
         return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, deleteCart.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                 .body(ApiResponse.<LoginResponse>builder()

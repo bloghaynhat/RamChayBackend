@@ -11,9 +11,9 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CartItemCreationRequest {
-    int quantity;
-    double unitPrice;
-    double subtotal;
     Long productId;
+    int quantity;
+//    double unitPrice;
+//    double subtotal;
 //    Long cartId;
 }

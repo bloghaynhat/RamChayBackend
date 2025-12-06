@@ -3,6 +3,7 @@ package iuh.fit.se.services.impl;
 import iuh.fit.se.dtos.request.CartItemCreationRequest;
 import iuh.fit.se.dtos.response.CartItemCreationResponse;
 import iuh.fit.se.dtos.response.CartItemDeletionResponse;
+import iuh.fit.se.dtos.response.GetItemsResponse;
 import iuh.fit.se.entities.Cart;
 import iuh.fit.se.entities.CartItem;
 import iuh.fit.se.entities.Customer;
@@ -16,8 +17,14 @@ import iuh.fit.se.repositories.CustomerRepository;
 import iuh.fit.se.repositories.ProductRepository;
 import iuh.fit.se.services.CartItemService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -80,5 +87,65 @@ public class CartItemServiceImpl implements CartItemService {
         return CartItemDeletionResponse.builder()
                 .id(cartItem.getId())
                 .build();
+    }
+
+    @Override
+    public CartItem persistCartItem(CartItem cartItem) {
+        // Kiểm tra giỏ hàng đã có sản phẩm hay chưa
+        // Nếu có thì chỉ cập nhật số lượng
+        // Nếu chưa thì tạo mới
+
+        Optional<CartItem> existingItem = cartItemRepository
+                .findCartItemByProductIdAndCartId(
+                        cartItem.getProduct().getId(),
+                        cartItem.getCart().getId());
+
+        if (existingItem.isPresent()) { // Cập nhật lại số lượng
+            existingItem.get().setQuantity(
+                    existingItem.get().getQuantity() + cartItem.getQuantity()
+            );
+            return cartItemRepository.save(existingItem.get());
+        }
+
+        // Tạo mới nếu chưa có
+        return cartItemRepository.save(cartItem);
+    }
+
+    @Override
+    public Page<GetItemsResponse> getItemsByCartIdOrCustomerId(Long cartId, Long customerId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        // Lấy danh sách các món trong giỏ hàng của khách vãng lai/khách hàng đã đăng nhập
+        // Ưu tiên lấy danh sách của người dùng đăng nhập trước
+
+        if (customerId != null) {
+            // Tìm giỏ hàng của khách hàng, nếu không có trả về danh sách rỗng
+            Optional<Cart> customerCart = cartRepository.findCartByCustomerId(customerId);
+            return customerCart.map(cart -> cartItemRepository
+                    .findAllByCart_Id(cart.getId(), pageable)
+                    .map(cartItem -> GetItemsResponse.builder()
+                            .id(cartItem.getId())
+                            .productId(cartItem.getProduct().getId())
+                            .productName(cartItem.getProduct().getName())
+//                            .subtotal(cartItem.getSubtotal())
+                            .unitPrice(cartItem.getProduct().getPrice())
+                            .quantity(cartItem.getQuantity())
+                            .build())).orElseGet(Page::empty);
+        }
+
+        if (cartId != null) {
+            // Nếu có cart id trong cookie thì trả về
+            return cartItemRepository.findAllByCart_Id(cartId, pageable)
+                    .map(cartItem -> GetItemsResponse.builder()
+                            .id(cartItem.getId())
+                            .productId(cartItem.getProduct().getId())
+                            .productName(cartItem.getProduct().getName())
+//                            .subtotal(cartItem.getSubtotal())
+                            .unitPrice(cartItem.getProduct().getPrice())
+                            .quantity(cartItem.getQuantity())
+                            .build());
+        }
+
+        // Rỗng nếu chưa đăng nhập và chưa thêm gì vào giỏ hàng
+        return Page.empty();
     }
 }

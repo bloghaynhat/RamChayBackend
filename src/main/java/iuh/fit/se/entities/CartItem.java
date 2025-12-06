@@ -19,8 +19,8 @@ public class CartItem {
 
     int quantity;
 
-    @Column(name = "unit_price")
-    double unitPrice;
+//    @Column(name = "unit_price")
+//    double unitPrice;
 
     double subtotal;
 
