@@ -23,6 +23,7 @@ public enum ErrorCode {
     OWNERSHIP_INVALID(3004, "Ownership invalid", HttpStatus.BAD_REQUEST),
     BODY_NOT_SPECIFIED(3004, "body not specified", HttpStatus.BAD_REQUEST),
     CUSTOMER_NOT_ALLOWED(3006, "Customer not allowed", HttpStatus.FORBIDDEN),
+    CUSTOMER_ONLY(3007, "Customer only", HttpStatus.FORBIDDEN),
     SESSION_EXPIRED(3005, "Session expired", HttpStatus.UNAUTHORIZED),
     UNAUTHENTICATED(4004, "unauthenticated", HttpStatus.UNAUTHORIZED),
     REFRESH_TOKEN_MISSING(4005, "refresh token missing", HttpStatus.BAD_REQUEST),

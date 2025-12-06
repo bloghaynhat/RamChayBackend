@@ -88,6 +88,11 @@ public class AuthServiceImpl implements AuthService {
         if (user == null)
             throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
 
+        user.getRoles().forEach(role -> {
+            if(!role.getName().contains("ROLE_CUSTOMER"))
+                throw new AppException(ErrorCode.CUSTOMER_ONLY);
+        });
+
         if (!BCrypt.checkpw(request.getPassword(), user.getPassword())) {
             throw new AppException(ErrorCode.PASSWORD_INVALID);
         }
