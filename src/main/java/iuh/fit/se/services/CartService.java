@@ -1,10 +1,12 @@
 package iuh.fit.se.services;
 
+import iuh.fit.se.dtos.request.CartItemCreationRequest;
+import iuh.fit.se.dtos.response.AddCartItemResponse;
 import iuh.fit.se.entities.Product;
 
 public interface CartService {
 
-    void addItem(Product product, int quantity);
+    AddCartItemResponse addItem(CartItemCreationRequest request, Long userId, Long cartId);
 
     void removeItem(Product product);
 

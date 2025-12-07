@@ -3,6 +3,7 @@ package iuh.fit.se.dtos.request;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -15,8 +16,10 @@ public class ProductCreationRequest {
     String description;
     double price;
     int stock;
+    String unit;
+    String indexImage;
     CategoryCreationRequest category;
-    String imageUrl;
     Set<MediaUploadRequest> mediaUploadRequests;
+    List<Long> imageIdsToDelete;
 
 }

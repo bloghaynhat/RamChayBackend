@@ -27,10 +27,17 @@ public class Product {
 
     int stock;
 
+    String unit;
+
+    @Column(name = "image_url")
+    String indexImage;
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     Category category;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     Set<Media> mediaFiles;
 }

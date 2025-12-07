@@ -1,5 +1,6 @@
 package iuh.fit.se.dtos.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -7,9 +8,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class MediaUploadResponse {
-    Long id;
-    String publicId;
-    String secureUrl;
+public class AddCartItemResponse {
+    Long cartId;
 }

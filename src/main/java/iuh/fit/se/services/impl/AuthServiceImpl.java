@@ -10,12 +10,14 @@ import iuh.fit.se.dtos.request.LoginRequest;
 import iuh.fit.se.dtos.response.CustomerRegistrationResponse;
 import iuh.fit.se.dtos.response.LoginResponse;
 import iuh.fit.se.dtos.response.MyProfileResponse;
+import iuh.fit.se.entities.Cart;
 import iuh.fit.se.entities.Customer;
 import iuh.fit.se.entities.Role;
 import iuh.fit.se.entities.User;
 import iuh.fit.se.exception.AppException;
 import iuh.fit.se.exception.ErrorCode;
 import iuh.fit.se.mappers.CustomerMapper;
+import iuh.fit.se.repositories.CartRepository;
 import iuh.fit.se.repositories.CustomerRepository;
 import iuh.fit.se.repositories.UserRepository;
 import iuh.fit.se.services.AuthService;
@@ -37,7 +39,7 @@ import java.util.stream.Collectors;
 @Service
 public class AuthServiceImpl implements AuthService {
     private final CustomerRepository customerRepository;
-
+    private final CartRepository cartRepository;
     private final UserRepository userRepository;
     private final UserService userService;
     private final CustomerMapper customerMapper;
@@ -46,12 +48,13 @@ public class AuthServiceImpl implements AuthService {
 
     public AuthServiceImpl(JwtSecretReader reader,
                            CustomerRepository customerRepository,
-                           CustomerMapper customerMapper,
+                           CartRepository cartRepository, CustomerMapper customerMapper,
                            RoleService roleService,
                            UserService userService,
                            UserRepository userRepository) {
         SECRET_KEY = reader.getSecret();
         this.customerRepository = customerRepository;
+        this.cartRepository = cartRepository;
         this.customerMapper = customerMapper;
         this.roleService = roleService;
         this.userService = userService;
@@ -61,6 +64,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public CustomerRegistrationResponse register(CustomerRegistrationRequest request) {
         Customer customer = new Customer();
+
+        if(customerRepository.findByUsername(request.getUsername()).isPresent())
+            throw new AppException(ErrorCode.USERNAME_EXISTED);
 
         Role role = roleService.findByName("ROLE_CUSTOMER");
 
@@ -79,8 +85,55 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public LoginResponse login(LoginRequest request) throws JOSEException {
+    public LoginResponse login(LoginRequest request, Long cartId) throws JOSEException {
         User user = userService.findByUsername(request.getUsername());
+
+        if (user == null)
+            throw new AppException(ErrorCode.CUSTOMER_NOT_FOUND);
+
+        user.getRoles().forEach(role -> {
+            if(!role.getName().contains("ROLE_CUSTOMER"))
+                throw new AppException(ErrorCode.CUSTOMER_ONLY);
+        });
+
+        if (!BCrypt.checkpw(request.getPassword(), user.getPassword())) {
+            throw new AppException(ErrorCode.PASSWORD_INVALID);
+        }
+
+        String refreshToken = generateToken(user, 7, ChronoUnit.DAYS);
+        String accessToken = generateToken(user, 1, ChronoUnit.HOURS);
+
+        if (cartId != null && user instanceof Customer customer) {
+            // Tìm cart của người dùng đang đăng nhập
+            Optional<Cart> existingCart = cartRepository.findCartByCustomerId(customer.getId());
+
+            if (existingCart.isEmpty()) { // Nếu chưa có cart thì lấy cart trong cookies gán cho
+                Optional<Cart> cartInCookies = cartRepository.findById(cartId);
+                cartInCookies.ifPresent(cart -> { // Nếu cart trong cookies có tồn tại trong db
+                    cart.setCustomer(customer); // Gán cho người dùng đó khi đăng nhập thành công
+                    cartRepository.save(cart);
+                });
+            }
+        }
+
+        return LoginResponse.builder()
+                .refreshToken(refreshToken)
+                .accessToken(accessToken)
+                .message("Đăng nhập thành công")
+                .build();
+    }
+
+    @Override
+    public LoginResponse adminLogin(LoginRequest request) throws JOSEException {
+        User user = userService.findByUsername(request.getUsername());
+
+        if (user == null)
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+
+        user.getRoles().forEach(role -> {
+            if(role.getName().contains("ROLE_CUSTOMER"))
+                throw new AppException(ErrorCode.CUSTOMER_NOT_ALLOWED);
+        });
 
         if (!BCrypt.checkpw(request.getPassword(), user.getPassword())) {
             throw new AppException(ErrorCode.PASSWORD_INVALID);
@@ -92,7 +145,7 @@ public class AuthServiceImpl implements AuthService {
         return LoginResponse.builder()
                 .refreshToken(refreshToken)
                 .accessToken(accessToken)
-                .message("Đăng nhập thành công")
+                .message("Đăng nhập thành công vào tài khoản quản trị")
                 .build();
     }
 
@@ -190,6 +243,7 @@ public class AuthServiceImpl implements AuthService {
         MyProfileResponse response = MyProfileResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
+                .fullName(user.getFullName())
                 .roles(user.getRoles().stream()
                         .map(Role::getName)
                         .collect(Collectors.toSet()))
@@ -197,7 +251,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         if (user instanceof Customer customer) {
-            response.setFullName(customer.getFullName());
+            response.setPhones(customer.getPhones());
             response.setAddresses(customer.getAddresses());
         }
 
