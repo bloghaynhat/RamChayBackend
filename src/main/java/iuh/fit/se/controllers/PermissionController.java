@@ -5,6 +5,7 @@ import iuh.fit.se.dtos.response.ApiResponse;
 import iuh.fit.se.dtos.response.PermissionCreationResponse;
 import iuh.fit.se.entities.Permission;
 import iuh.fit.se.services.impl.PermissionServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class PermissionController {
     }
 
     @PostMapping
-    public ApiResponse<PermissionCreationResponse> createPermisison(@RequestBody PermissionCreationRequest permission) {
+    public ApiResponse<PermissionCreationResponse> createPermisison(@Valid @RequestBody PermissionCreationRequest permission) {
         return ApiResponse.<PermissionCreationResponse>
                         builder()
                 .result(permissionService.createPermission(permission))

@@ -5,6 +5,7 @@ import iuh.fit.se.dtos.request.RoleDeleteRequest;
 import iuh.fit.se.dtos.response.*;
 import iuh.fit.se.entities.Role;
 import iuh.fit.se.services.impl.RoleServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,7 @@ public class RoleController {
     }
 
     @PostMapping
-    public ApiResponse<RoleCreationResponse>  createRole(@RequestBody RoleCreationRequest request){
+    public ApiResponse<RoleCreationResponse>  createRole(@Valid @RequestBody RoleCreationRequest request){
         return  ApiResponse.<RoleCreationResponse>builder()
                 .result(roleServiceImpl.createRole(request))
                 .build();
@@ -37,7 +38,7 @@ public class RoleController {
 
     @PutMapping("/{id}")
     public ApiResponse<RoleCreationResponse> updateRole(
-            @PathVariable Long id,
+            @Valid  @PathVariable Long id,
             @RequestBody RoleCreationRequest request){
 
         return ApiResponse.<RoleCreationResponse>builder()
