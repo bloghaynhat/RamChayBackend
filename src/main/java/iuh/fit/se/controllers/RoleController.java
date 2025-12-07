@@ -2,16 +2,9 @@ package iuh.fit.se.controllers;
 
 import iuh.fit.se.dtos.request.RoleCreationRequest;
 import iuh.fit.se.dtos.request.RoleDeleteRequest;
-import iuh.fit.se.dtos.request.RoleFindRequest;
-import iuh.fit.se.dtos.response.ApiResponse;
-import iuh.fit.se.dtos.response.RoleCreationResponse;
-import iuh.fit.se.dtos.response.RoleDeleteResponse;
-import iuh.fit.se.dtos.response.RoleFindResponse;
+import iuh.fit.se.dtos.response.*;
 import iuh.fit.se.entities.Role;
-import iuh.fit.se.repositories.RoleRepository;
-import iuh.fit.se.services.RoleService;
 import iuh.fit.se.services.impl.RoleServiceImpl;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -70,6 +63,17 @@ public class RoleController {
                 .build();
     }
 
+    @GetMapping("/page")
+    public ApiResponse<RolePaginationResponse> getRoles(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int pageSize,
+            @RequestParam(defaultValue = "") String keyWord // <== Thêm tham số keyword
+    ) {
+        // Gọi Service với tham số keyword mới
+        return ApiResponse.<RolePaginationResponse>builder()
+                .result(roleServiceImpl.getRoles(page, pageSize, keyWord))
+                .build();
+    }
 
 
 

@@ -19,7 +19,9 @@
     "CREATE_ROLE",
     "UPDATE_ROLE",
     "FINDONE_ROLE",
-    "DELETE_ROLE"
+    "DELETE_ROLE",
+    "PAGE_ROLE",
+    "CREATE_PERMISSION"
   ],
   "roles": {
     "ROLE_MANAGER": [
@@ -47,13 +49,15 @@
       "SEARCH_MANAGER",
       "FIND_MANAGER",
       "PAGE_MANAGER",
+      "GETALL_PERMISSION",
+      "CREATE_PERMISSION",
       "GET_ROLE",
       "GETALL_ROLE",
-      "GETALL_PERMISSION",
       "CREATE_ROLE",
       "UPDATE_ROLE",
       "FINDONE_ROLE",
-      "DELETE_ROLE"
+      "DELETE_ROLE",
+      "PAGE_ROLE"
     ]
   }
 }
