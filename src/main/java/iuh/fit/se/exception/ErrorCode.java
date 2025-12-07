@@ -30,7 +30,7 @@ public enum ErrorCode {
     UNAUTHENTICATED(4004, "[4004] Unauthenticated", HttpStatus.UNAUTHORIZED),
     REFRESH_TOKEN_MISSING(4005, "[4005] Refresh token missing", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED(4003, "[4003] Access denied", HttpStatus.FORBIDDEN),
-//    INVALID_DOB(3003, "[3003] Invalid date of birth", HttpStatus.BAD_REQUEST),
+    //    INVALID_DOB(3003, "[3003] Invalid date of birth", HttpStatus.BAD_REQUEST),
     CUSTOMER_NOT_FOUND(4001, "[4001] Customer not found", HttpStatus.NOT_FOUND),
     PRODUCT_NOT_FOUND(4002, "[4002] Product not found", HttpStatus.NOT_FOUND),
     CART_ITEM_NOT_FOUND(4003, "[4003] Cart item not found", HttpStatus.NOT_FOUND),
@@ -40,7 +40,7 @@ public enum ErrorCode {
     PRODUCT_OUT_OF_STOCK(4007, "[4007] Product out of stock", HttpStatus.BAD_REQUEST),
     ORDER_NOT_FOUND(4008, "[4008] Order not found", HttpStatus.NOT_FOUND),
     INVALID_QUANTITY(4009, "[4009] Invalid quantity", HttpStatus.BAD_REQUEST),
-    ;
+    PERMISSION_EXISTED(4010, "[4010] Permission existed", HttpStatus.BAD_REQUEST);
 
 
     private final int code;
