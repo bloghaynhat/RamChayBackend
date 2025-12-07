@@ -65,6 +65,9 @@ public class AuthServiceImpl implements AuthService {
     public CustomerRegistrationResponse register(CustomerRegistrationRequest request) {
         Customer customer = new Customer();
 
+        if(customerRepository.findByUsername(request.getUsername()).isPresent())
+            throw new AppException(ErrorCode.USERNAME_EXISTED);
+
         Role role = roleService.findByName("ROLE_CUSTOMER");
 
         // hash mật khẩu

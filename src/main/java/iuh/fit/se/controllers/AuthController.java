@@ -11,6 +11,7 @@ import iuh.fit.se.entities.Customer;
 import iuh.fit.se.exception.AppException;
 import iuh.fit.se.exception.ErrorCode;
 import iuh.fit.se.services.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -29,7 +30,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ApiResponse<CustomerRegistrationResponse> register(@RequestBody CustomerRegistrationRequest request) {
+    public ApiResponse<CustomerRegistrationResponse> register(@Valid @RequestBody CustomerRegistrationRequest request) {
         return ApiResponse.<CustomerRegistrationResponse>builder()
                 .result(authService.register(request))
                 .build();
