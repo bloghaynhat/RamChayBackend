@@ -18,7 +18,7 @@ public class ProductCreationRequest {
     int stock;
     String unit;
     String indexImage;
-    CategoryCreationRequest category;
+    Long categoryId;
     Set<MediaUploadRequest> mediaUploadRequests;
     List<Long> imageIdsToDelete;
 
