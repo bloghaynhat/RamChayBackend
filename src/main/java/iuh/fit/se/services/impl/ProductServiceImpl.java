@@ -271,6 +271,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<ProductCreationResponse> semanticSearch(String query) {
+        return embeddingService.search(query).stream().map(i -> {
+                        Product product = productRepository.findById(Long.valueOf(i.getId()))
+                                .orElseThrow();
+                        return productMapper.toProductCreationResponse(product);
+                    }
+                ).toList();
+    }
+
+    @Override
     public PageResponse<ProductCreationResponse> getProductsWithPaginationAndFilter(int page, int size, String keyword, Long categoryId) {
         // 1. Tạo Pageable
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending());
